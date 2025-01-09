@@ -1,4 +1,15 @@
-import { StockItem } from "@/components/AddStockForm";
+export interface StockItem {
+  id?: string;
+  lotNumber: number;
+  type: 'rectangular' | 'circular';
+  width?: number;
+  height?: number;
+  diameter?: number;
+  length: number;
+  material: string;
+  remainingLength: number;
+  supplier: string;
+}
 
 export interface MaterialWithdrawal {
   id: string;
@@ -10,5 +21,3 @@ export interface MaterialWithdrawal {
   dimensions: string;
   supplier: string;
 }
-
-export type { StockItem };
