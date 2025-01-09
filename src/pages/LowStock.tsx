@@ -14,7 +14,7 @@ export default function LowStock({ items }: LowStockProps) {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Stock Faible (< 200mm)</h1>
+        <h1 className="text-3xl font-bold">Stock Faible (&lt; 200mm)</h1>
         <Link to="/">
           <Button variant="outline">Retour au stock</Button>
         </Link>
