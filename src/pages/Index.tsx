@@ -147,7 +147,7 @@ export default function Index() {
         </div>
         
         <div className="space-y-6">
-          <Tabs defaultValue="add" className="w-full">
+          <Tabs defaultValue="remove" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="add">Ajouter</TabsTrigger>
               <TabsTrigger value="remove">Retirer</TabsTrigger>

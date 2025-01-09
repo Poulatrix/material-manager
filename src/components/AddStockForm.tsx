@@ -4,22 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import { StockItem } from '@/types/stock';
 
 interface AddStockFormProps {
   onAdd: (item: StockItem) => void;
   nextLotNumber: number;
-}
-
-export interface StockItem {
-  lotNumber: number;
-  type: 'rectangular' | 'circular';
-  width?: number;
-  height?: number;
-  diameter?: number;
-  length: number;
-  material: string;
-  remainingLength: number;
-  supplier: string;
 }
 
 export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
@@ -31,6 +20,7 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
   const [length, setLength] = useState('');
   const [material, setMaterial] = useState('');
   const [supplier, setSupplier] = useState('');
+  const [price, setPrice] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +41,7 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
       material,
       supplier,
       remainingLength: Number(length),
+      price: price ? Number(price) : undefined,
       ...(type === 'rectangular' 
         ? { width: Number(width), height: Number(height) }
         : { diameter: Number(diameter) }
@@ -58,10 +49,6 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
     };
 
     onAdd(newItem);
-    toast({
-      title: "Stock ajouté",
-      description: `Lot n°${nextLotNumber} ajouté avec succès`
-    });
 
     // Reset form
     setWidth('');
@@ -70,11 +57,11 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
     setLength('');
     setMaterial('');
     setSupplier('');
+    setPrice('');
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-white rounded-lg shadow">
-      <div className="space-y-4">
         <RadioGroup value={type} onValueChange={(value: 'rectangular' | 'circular') => setType(value)} className="flex space-x-4">
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="rectangular" id="rectangular" />
@@ -121,6 +108,18 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
             />
           </div>
         )}
+
+      <div className="space-y-2">
+        <Label htmlFor="price">Prix d'achat (€)</Label>
+        <Input
+          id="price"
+          type="number"
+          step="0.01"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Prix d'achat"
+        />
+      </div>
 
         <div className="space-y-2">
           <Label htmlFor="length">Longueur (mm)</Label>

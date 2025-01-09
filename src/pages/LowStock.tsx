@@ -1,15 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { StockItem } from '@/components/AddStockForm';
+import { StockItem } from '@/types/stock';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import { useToast } from "@/components/ui/use-toast";
 
-interface LowStockProps {
-  items: StockItem[];
-}
+export default function LowStock() {
+  const [items, setItems] = useState<StockItem[]>([]);
+  const { toast } = useToast();
 
-export default function LowStock({ items }: LowStockProps) {
-  const lowStockItems = items.filter(item => item.remainingLength < 200);
+  useEffect(() => {
+    const loadLowStockItems = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'stock'));
+        const stockItems: StockItem[] = [];
+        
+        querySnapshot.forEach((doc) => {
+          const item = { ...doc.data(), id: doc.id } as StockItem;
+          if (item.remainingLength < 200) {
+            stockItems.push(item);
+          }
+        });
+
+        setItems(stockItems);
+      } catch (error) {
+        console.error('Error loading low stock items:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les données du stock faible",
+          variant: "destructive"
+        });
+      }
+    };
+
+    loadLowStockItems();
+  }, [toast]);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -33,7 +60,7 @@ export default function LowStock({ items }: LowStockProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {lowStockItems.map((item) => (
+            {items.map((item) => (
               <TableRow key={item.lotNumber}>
                 <TableCell>{item.lotNumber}</TableCell>
                 <TableCell>{item.type === 'rectangular' ? 'Rectangulaire' : 'Circulaire'}</TableCell>

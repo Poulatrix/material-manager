@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { StockItem } from '../types/stock';
+import { StockItem } from '@/types/stock';
 import { db } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
@@ -68,6 +68,11 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
       ? lot.remainingLength - numberNewLength
       : numberNewLength;
 
+    // Calculate value of removed material
+    const value = lot.price 
+      ? (lot.price * quantityRemoved) / lot.length
+      : 0;
+
     try {
       // Save withdrawal to Firestore
       await addDoc(collection(db, 'withdrawals'), {
@@ -79,7 +84,8 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
         dimensions: lot.type === 'rectangular' 
           ? `${lot.width}x${lot.height} mm`
           : `Ø${lot.diameter} mm`,
-        supplier: lot.supplier
+        supplier: lot.supplier,
+        value: value
       });
 
       onRemove(Number(lotNumber), finalLength);
