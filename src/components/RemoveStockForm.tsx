@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { StockItem } from './AddStockForm';
+import { StockItem } from '../types/stock';
+import { db } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 interface RemoveStockFormProps {
   items: StockItem[];
@@ -14,9 +16,10 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
   const { toast } = useToast();
   const [lotNumber, setLotNumber] = useState('');
   const [newLength, setNewLength] = useState('');
+  const [reference, setReference] = useState('');
   const [removeType, setRemoveType] = useState<'remaining' | 'removed'>('remaining');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const lot = items.find(item => item.lotNumber === Number(lotNumber));
@@ -24,6 +27,15 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
       toast({
         title: "Erreur",
         description: "Numéro de lot invalide",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!reference.trim()) {
+      toast({
+        title: "Erreur",
+        description: "La référence est requise",
         variant: "destructive"
       });
       return;
@@ -52,15 +64,41 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
       return;
     }
 
-    onRemove(Number(lotNumber), finalLength);
-    toast({
-      title: "Stock mis à jour",
-      description: `Lot n°${lotNumber} mis à jour avec succès`
-    });
+    const quantityRemoved = removeType === 'remaining' 
+      ? lot.remainingLength - numberNewLength
+      : numberNewLength;
 
-    // Reset form
-    setLotNumber('');
-    setNewLength('');
+    try {
+      // Save withdrawal to Firestore
+      await addDoc(collection(db, 'withdrawals'), {
+        lotNumber: Number(lotNumber),
+        quantity: quantityRemoved,
+        reference,
+        date: new Date(),
+        material: lot.material,
+        dimensions: lot.type === 'rectangular' 
+          ? `${lot.width}x${lot.height} mm`
+          : `Ø${lot.diameter} mm`,
+        supplier: lot.supplier
+      });
+
+      onRemove(Number(lotNumber), finalLength);
+      toast({
+        title: "Stock mis à jour",
+        description: `Lot n°${lotNumber} mis à jour avec succès`
+      });
+
+      // Reset form
+      setLotNumber('');
+      setNewLength('');
+      setReference('');
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de l'enregistrement du retrait",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -74,6 +112,16 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
             value={lotNumber}
             onChange={(e) => setLotNumber(e.target.value)}
             placeholder="N° de lot"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="reference">Référence</Label>
+          <Input
+            id="reference"
+            value={reference}
+            onChange={(e) => setReference(e.target.value)}
+            placeholder="Référence du retrait"
           />
         </div>
 

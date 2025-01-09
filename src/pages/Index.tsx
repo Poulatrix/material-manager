@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { AddStockForm, StockItem } from '@/components/AddStockForm';
+import { AddStockForm } from '@/components/AddStockForm';
 import { RemoveStockForm } from '@/components/RemoveStockForm';
 import { StockTable } from '@/components/StockTable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { StockItem } from '@/types/stock';
 
 export default function Index() {
   const [items, setItems] = useState<StockItem[]>([]);
@@ -50,9 +51,14 @@ export default function Index() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Gestion de Stock Matière</h1>
-        <Link to="/low-stock">
-          <Button variant="outline">Voir Stock Faible</Button>
-        </Link>
+        <div className="space-x-4">
+          <Link to="/withdrawals">
+            <Button variant="outline">Historique des retraits</Button>
+          </Link>
+          <Link to="/low-stock">
+            <Button variant="outline">Voir Stock Faible</Button>
+          </Link>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
