@@ -19,6 +19,7 @@ export interface StockItem {
   length: number;
   material: string;
   remainingLength: number;
+  supplier: string;
 }
 
 export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
@@ -29,11 +30,12 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
   const [diameter, setDiameter] = useState('');
   const [length, setLength] = useState('');
   const [material, setMaterial] = useState('');
+  const [supplier, setSupplier] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!material || !length || (type === 'rectangular' && (!width || !height)) || (type === 'circular' && !diameter)) {
+    if (!material || !length || !supplier || (type === 'rectangular' && (!width || !height)) || (type === 'circular' && !diameter)) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs requis",
@@ -47,6 +49,7 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
       type,
       length: Number(length),
       material,
+      supplier,
       remainingLength: Number(length),
       ...(type === 'rectangular' 
         ? { width: Number(width), height: Number(height) }
@@ -66,6 +69,7 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
     setDiameter('');
     setLength('');
     setMaterial('');
+    setSupplier('');
   };
 
   return (
@@ -136,6 +140,16 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
             value={material}
             onChange={(e) => setMaterial(e.target.value)}
             placeholder="Ex: Acier, Aluminium..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="supplier">Fournisseur</Label>
+          <Input
+            id="supplier"
+            value={supplier}
+            onChange={(e) => setSupplier(e.target.value)}
+            placeholder="Nom du fournisseur"
           />
         </div>
       </div>
