@@ -62,52 +62,52 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-white rounded-lg shadow">
-        <RadioGroup value={type} onValueChange={(value: 'rectangular' | 'circular') => setType(value)} className="flex space-x-4">
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="rectangular" id="rectangular" />
-            <Label htmlFor="rectangular">Rectangulaire</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="circular" id="circular" />
-            <Label htmlFor="circular">Circulaire</Label>
-          </div>
-        </RadioGroup>
+      <RadioGroup value={type} onValueChange={(value: 'rectangular' | 'circular') => setType(value)} className="flex space-x-4">
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="rectangular" id="rectangular" />
+          <Label htmlFor="rectangular">Rectangulaire</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="circular" id="circular" />
+          <Label htmlFor="circular">Circulaire</Label>
+        </div>
+      </RadioGroup>
 
-        {type === 'rectangular' ? (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="width">Largeur (mm)</Label>
-              <Input
-                id="width"
-                type="number"
-                value={width}
-                onChange={(e) => setWidth(e.target.value)}
-                placeholder="Largeur"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="height">Hauteur (mm)</Label>
-              <Input
-                id="height"
-                type="number"
-                value={height}
-                onChange={(e) => setHeight(e.target.value)}
-                placeholder="Hauteur"
-              />
-            </div>
-          </div>
-        ) : (
+      {type === 'rectangular' ? (
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="diameter">Diamètre (mm)</Label>
+            <Label htmlFor="width">Largeur (mm)</Label>
             <Input
-              id="diameter"
+              id="width"
               type="number"
-              value={diameter}
-              onChange={(e) => setDiameter(e.target.value)}
-              placeholder="Diamètre"
+              value={width}
+              onChange={(e) => setWidth(e.target.value)}
+              placeholder="Largeur"
             />
           </div>
-        )}
+          <div className="space-y-2">
+            <Label htmlFor="height">Hauteur (mm)</Label>
+            <Input
+              id="height"
+              type="number"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+              placeholder="Hauteur"
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Label htmlFor="diameter">Diamètre (mm)</Label>
+          <Input
+            id="diameter"
+            type="number"
+            value={diameter}
+            onChange={(e) => setDiameter(e.target.value)}
+            placeholder="Diamètre"
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="price">Prix d'achat (€)</Label>
@@ -121,36 +121,35 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
         />
       </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="length">Longueur (mm)</Label>
-          <Input
-            id="length"
-            type="number"
-            value={length}
-            onChange={(e) => setLength(e.target.value)}
-            placeholder="Longueur"
-          />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="length">Longueur (mm)</Label>
+        <Input
+          id="length"
+          type="number"
+          value={length}
+          onChange={(e) => setLength(e.target.value)}
+          placeholder="Longueur"
+        />
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="material">Matière</Label>
-          <Input
-            id="material"
-            value={material}
-            onChange={(e) => setMaterial(e.target.value)}
-            placeholder="Ex: Acier, Aluminium..."
-          />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="material">Matière</Label>
+        <Input
+          id="material"
+          value={material}
+          onChange={(e) => setMaterial(e.target.value)}
+          placeholder="Ex: Acier, Aluminium..."
+        />
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="supplier">Fournisseur</Label>
-          <Input
-            id="supplier"
-            value={supplier}
-            onChange={(e) => setSupplier(e.target.value)}
-            placeholder="Nom du fournisseur"
-          />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="supplier">Fournisseur</Label>
+        <Input
+          id="supplier"
+          value={supplier}
+          onChange={(e) => setSupplier(e.target.value)}
+          placeholder="Nom du fournisseur"
+        />
       </div>
 
       <Button type="submit" className="w-full">
