@@ -110,18 +110,6 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="price">Prix d'achat (€)</Label>
-        <Input
-          id="price"
-          type="number"
-          step="0.01"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Prix d'achat"
-        />
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="length">Longueur (mm)</Label>
         <Input
           id="length"
@@ -139,6 +127,18 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
           value={material}
           onChange={(e) => setMaterial(e.target.value)}
           placeholder="Ex: Acier, Aluminium..."
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="price">Prix d'achat (€)</Label>
+        <Input
+          id="price"
+          type="number"
+          step="0.01"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Prix d'achat"
         />
       </div>
 
