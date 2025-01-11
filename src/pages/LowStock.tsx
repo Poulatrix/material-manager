@@ -6,16 +6,17 @@ import { StockItem } from '@/types/stock';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useToast } from "@/components/ui/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function LowStock() {
   const [items, setItems] = useState<StockItem[]>([]);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const loadLowStockItems = async () => {
       try {
         console.log('Loading low stock items...');
-        // Simplifions la requête pour éviter les problèmes d'index
         const q = query(
           collection(db, 'stock'),
           where('archived', '==', false)
@@ -25,16 +26,14 @@ export default function LowStock() {
         
         querySnapshot.forEach((doc) => {
           const item = { ...doc.data(), id: doc.id } as StockItem;
-          // Filtrons côté client pour les items avec remainingLength <= 200
           if (item.remainingLength <= 200) {
             stockItems.push(item);
           }
         });
 
-        // Trions côté client
         stockItems.sort((a, b) => a.lotNumber - b.lotNumber);
+        console.log('Found low stock items:', stockItems);
         setItems(stockItems);
-        console.log('Loaded low stock items:', stockItems);
       } catch (error) {
         console.error('Error loading low stock items:', error);
         toast({
@@ -49,31 +48,33 @@ export default function LowStock() {
   }, [toast]);
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Stock Faible (&lt;= 200mm)</h1>
+    <div className="container mx-auto py-4 md:py-8 px-2 md:px-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold">Stock Faible (&lt;= 200mm)</h1>
         <Link to="/">
           <Button variant="outline">Retour au stock</Button>
         </Link>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>N° Lot</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead className={isMobile ? "hidden" : ""}>Type</TableHead>
               <TableHead>Dimensions</TableHead>
               <TableHead>Longueur restante</TableHead>
-              <TableHead>Matière</TableHead>
-              <TableHead>Fournisseur</TableHead>
+              <TableHead className={isMobile ? "hidden" : ""}>Matière</TableHead>
+              <TableHead className={isMobile ? "hidden" : ""}>Fournisseur</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {items.map((item) => (
-              <TableRow key={item.lotNumber}>
+              <TableRow key={item.id}>
                 <TableCell>{item.lotNumber}</TableCell>
-                <TableCell>{item.type === 'rectangular' ? 'Rectangulaire' : 'Circulaire'}</TableCell>
+                <TableCell className={isMobile ? "hidden" : ""}>
+                  {item.type === 'rectangular' ? 'Rectangulaire' : 'Circulaire'}
+                </TableCell>
                 <TableCell>
                   {item.type === 'rectangular' 
                     ? `${item.width}x${item.height} mm`
@@ -81,8 +82,8 @@ export default function LowStock() {
                   }
                 </TableCell>
                 <TableCell>{item.remainingLength} mm</TableCell>
-                <TableCell>{item.material}</TableCell>
-                <TableCell>{item.supplier}</TableCell>
+                <TableCell className={isMobile ? "hidden" : ""}>{item.material}</TableCell>
+                <TableCell className={isMobile ? "hidden" : ""}>{item.supplier}</TableCell>
               </TableRow>
             ))}
           </TableBody>
