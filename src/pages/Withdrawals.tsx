@@ -66,7 +66,11 @@ export default function Withdrawals() {
                 <TableCell>{withdrawal.material}</TableCell>
                 <TableCell>{withdrawal.dimensions}</TableCell>
                 <TableCell>{withdrawal.supplier}</TableCell>
-                <TableCell>{withdrawal.value.toFixed(2)} €</TableCell>
+                <TableCell>
+                  {typeof withdrawal.value === 'number' 
+                    ? `${withdrawal.value.toFixed(2)} €` 
+                    : 'N/A'}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
