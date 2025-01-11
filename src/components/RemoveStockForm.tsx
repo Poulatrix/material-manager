@@ -18,6 +18,8 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
   const [newLength, setNewLength] = useState('');
   const [reference, setReference] = useState('');
   const [removeType, setRemoveType] = useState<'remaining' | 'removed'>('remaining');
+  const [pieceName, setPieceName] = useState('');
+  const [pieceQuantity, setPieceQuantity] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +87,13 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
           ? `${lot.width}x${lot.height} mm`
           : `Ø${lot.diameter} mm`,
         supplier: lot.supplier,
-        value: value
+        value: value,
+        ...(pieceName && pieceQuantity ? {
+          pieceInfo: {
+            name: pieceName,
+            quantity: Number(pieceQuantity)
+          }
+        } : {})
       });
 
       onRemove(Number(lotNumber), finalLength);
@@ -98,6 +106,8 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
       setLotNumber('');
       setNewLength('');
       setReference('');
+      setPieceName('');
+      setPieceQuantity('');
     } catch (error) {
       toast({
         title: "Erreur",
@@ -128,6 +138,27 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
             value={reference}
             onChange={(e) => setReference(e.target.value)}
             placeholder="Référence du retrait"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="pieceName">Nom de la pièce (optionnel)</Label>
+          <Input
+            id="pieceName"
+            value={pieceName}
+            onChange={(e) => setPieceName(e.target.value)}
+            placeholder="Nom de la pièce créée"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="pieceQuantity">Nombre de pièces (optionnel)</Label>
+          <Input
+            id="pieceQuantity"
+            type="number"
+            value={pieceQuantity}
+            onChange={(e) => setPieceQuantity(e.target.value)}
+            placeholder="Quantité de pièces"
           />
         </div>
 

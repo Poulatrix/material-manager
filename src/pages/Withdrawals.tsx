@@ -29,9 +29,14 @@ export default function Withdrawals() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Historique des Retraits</h1>
-        <Link to="/">
-          <Button variant="outline">Retour au stock</Button>
-        </Link>
+        <div className="space-x-4">
+          <Link to="/">
+            <Button variant="outline">Retour au stock</Button>
+          </Link>
+          <Link to="/archives">
+            <Button variant="outline">Voir les archives</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="border rounded-lg">
@@ -45,6 +50,7 @@ export default function Withdrawals() {
               <TableHead>Matière</TableHead>
               <TableHead>Dimensions</TableHead>
               <TableHead>Fournisseur</TableHead>
+              <TableHead>Pièce</TableHead>
               <TableHead>Valeur</TableHead>
             </TableRow>
           </TableHeader>
@@ -66,6 +72,11 @@ export default function Withdrawals() {
                 <TableCell>{withdrawal.material}</TableCell>
                 <TableCell>{withdrawal.dimensions}</TableCell>
                 <TableCell>{withdrawal.supplier}</TableCell>
+                <TableCell>
+                  {withdrawal.pieceInfo
+                    ? `${withdrawal.pieceInfo.name} (${withdrawal.pieceInfo.quantity} pcs)`
+                    : '-'}
+                </TableCell>
                 <TableCell>
                   {typeof withdrawal.value === 'number' 
                     ? `${withdrawal.value.toFixed(2)} €` 
