@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { StockItem } from '@/types/stock';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, doc, query, orderBy } from 'firebase/firestore';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function Index() {
@@ -16,18 +16,21 @@ export default function Index() {
   const [nextLotNumber, setNextLotNumber] = useState(1);
   const { toast } = useToast();
 
-  // Load initial data from Firestore
   useEffect(() => {
     const loadStockItems = async () => {
       try {
         console.log('Loading stock items from Firestore...');
-        const querySnapshot = await getDocs(collection(db, 'stock'));
+        const q = query(collection(db, 'stock'), orderBy('lotNumber', 'asc'));
+        const querySnapshot = await getDocs(q);
         const stockItems: StockItem[] = [];
         let maxLotNumber = 0;
 
         querySnapshot.forEach((doc) => {
           const item = { ...doc.data(), id: doc.id } as StockItem;
-          stockItems.push(item);
+          if (!item.archived) {
+            stockItems.push(item);
+          }
+          // Prendre en compte tous les lots, même archivés, pour le numéro suivant
           maxLotNumber = Math.max(maxLotNumber, item.lotNumber);
         });
 

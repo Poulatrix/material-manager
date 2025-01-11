@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { StockItem, MaterialWithdrawal } from '@/types/stock';
 
 export default function Archives() {
+  const [searchTerm, setSearchTerm] = useState('');
+
   const { data: archivedLots, isLoading: isLoadingLots } = useQuery({
     queryKey: ['archivedLots'],
     queryFn: async () => {
       const q = query(
         collection(db, 'stock'),
-        where('archived', '==', true)
+        where('archived', '==', true),
+        orderBy('lotNumber', 'asc')
       );
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
@@ -36,6 +40,20 @@ export default function Archives() {
     }
   });
 
+  const filteredLots = archivedLots?.filter(lot => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      lot.lotNumber.toString().includes(searchLower) ||
+      lot.material.toLowerCase().includes(searchLower) ||
+      lot.supplier.toLowerCase().includes(searchLower) ||
+      (lot.type === 'rectangular' && 
+        `${lot.width}x${lot.height}`.includes(searchLower)) ||
+      (lot.type === 'circular' && 
+        lot.diameter?.toString().includes(searchLower))
+    );
+  });
+
   if (isLoadingLots || isLoadingWithdrawals) {
     return <div className="container mx-auto py-8 px-4">Chargement...</div>;
   }
@@ -49,8 +67,17 @@ export default function Archives() {
         </Link>
       </div>
 
+      <div className="mb-6">
+        <Input
+          placeholder="Rechercher par n° lot, dimensions, matière, fournisseur..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-xl"
+        />
+      </div>
+
       <div className="space-y-8">
-        {archivedLots?.map(lot => (
+        {filteredLots?.map(lot => (
           <div key={lot.id} className="border rounded-lg p-6 bg-white shadow">
             <h2 className="text-xl font-semibold mb-4">
               Lot n°{lot.lotNumber} - {lot.material}

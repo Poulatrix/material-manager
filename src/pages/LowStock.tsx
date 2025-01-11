@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { StockItem } from '@/types/stock';
 import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { useToast } from "@/components/ui/use-toast";
 
 export default function LowStock() {
@@ -14,7 +14,12 @@ export default function LowStock() {
   useEffect(() => {
     const loadLowStockItems = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'stock'));
+        const q = query(
+          collection(db, 'stock'),
+          where('archived', '==', false),
+          orderBy('lotNumber', 'asc')
+        );
+        const querySnapshot = await getDocs(q);
         const stockItems: StockItem[] = [];
         
         querySnapshot.forEach((doc) => {
