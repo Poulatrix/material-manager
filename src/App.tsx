@@ -17,7 +17,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/low-stock" element={<LowStock items={[]} />} />
+          <Route path="/low-stock" element={<LowStock />} />
           <Route path="/withdrawals" element={<Withdrawals />} />
         </Routes>
       </BrowserRouter>

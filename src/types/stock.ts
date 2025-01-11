@@ -10,6 +10,7 @@ export interface StockItem {
   remainingLength: number;
   supplier: string;
   price?: number;
+  archived?: boolean;
 }
 
 export interface MaterialWithdrawal {
@@ -22,4 +23,8 @@ export interface MaterialWithdrawal {
   dimensions: string;
   supplier: string;
   value: number;
+  pieceInfo?: {
+    name: string;
+    quantity: number;
+  };
 }

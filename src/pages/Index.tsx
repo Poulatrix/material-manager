@@ -108,22 +108,33 @@ export default function Index() {
     }
   };
 
-  const handleSearch = (searchTerm: string) => {
-    if (!searchTerm) {
-      setFilteredItems(items);
-      return;
+  const handleSearch = (filters: { [key: string]: string }) => {
+    let filtered = [...items];
+
+    if (filters.dimensions) {
+      const searchDimensions = filters.dimensions.toLowerCase();
+      filtered = filtered.filter(item => 
+        (item.type === 'rectangular' && 
+          `${item.width}x${item.height}`.includes(searchDimensions)) ||
+        (item.type === 'circular' && 
+          item.diameter?.toString().includes(searchDimensions))
+      );
     }
 
-    const lowerSearchTerm = searchTerm.toLowerCase();
-    const filtered = items.filter(item => 
-      item.material.toLowerCase().includes(lowerSearchTerm) ||
-      item.supplier.toLowerCase().includes(lowerSearchTerm) ||
-      item.lotNumber.toString().includes(lowerSearchTerm) ||
-      (item.type === 'rectangular' && 
-        (`${item.width}x${item.height}`).includes(searchTerm)) ||
-      (item.type === 'circular' && 
-        item.diameter?.toString().includes(searchTerm))
-    );
+    if (filters.material) {
+      const searchMaterial = filters.material.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.material.toLowerCase().includes(searchMaterial)
+      );
+    }
+
+    if (filters.supplier) {
+      const searchSupplier = filters.supplier.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.supplier.toLowerCase().includes(searchSupplier)
+      );
+    }
+
     setFilteredItems(filtered);
   };
 

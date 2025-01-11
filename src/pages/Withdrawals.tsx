@@ -45,6 +45,7 @@ export default function Withdrawals() {
               <TableHead>Matière</TableHead>
               <TableHead>Dimensions</TableHead>
               <TableHead>Fournisseur</TableHead>
+              <TableHead>Valeur</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -65,6 +66,7 @@ export default function Withdrawals() {
                 <TableCell>{withdrawal.material}</TableCell>
                 <TableCell>{withdrawal.dimensions}</TableCell>
                 <TableCell>{withdrawal.supplier}</TableCell>
+                <TableCell>{withdrawal.value.toFixed(2)} €</TableCell>
               </TableRow>
             ))}
           </TableBody>
