@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -14,29 +14,37 @@ export default function Archives() {
   const { data: archivedLots, isLoading: isLoadingLots } = useQuery({
     queryKey: ['archivedLots'],
     queryFn: async () => {
+      console.log('Loading archived lots...');
       const q = query(
         collection(db, 'stock'),
-        where('archived', '==', true),
-        orderBy('lotNumber', 'asc')
+        where('archived', '==', true)
       );
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      const lots = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as StockItem[];
+      
+      // Tri côté client
+      lots.sort((a, b) => a.lotNumber - b.lotNumber);
+      console.log('Loaded archived lots:', lots);
+      return lots;
     }
   });
 
   const { data: withdrawals, isLoading: isLoadingWithdrawals } = useQuery({
     queryKey: ['allWithdrawals'],
     queryFn: async () => {
-      const q = query(collection(db, 'withdrawals'), orderBy('date', 'desc'));
+      console.log('Loading withdrawals...');
+      const q = query(collection(db, 'withdrawals'));
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      const withdrawalData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         date: doc.data().date.toDate()
       })) as MaterialWithdrawal[];
+      console.log('Loaded withdrawals:', withdrawalData);
+      return withdrawalData;
     }
   });
 
@@ -120,6 +128,7 @@ export default function Archives() {
                 <TableBody>
                   {withdrawals
                     ?.filter(w => w.lotNumber === lot.lotNumber)
+                    .sort((a, b) => b.date.getTime() - a.date.getTime())
                     .map(withdrawal => (
                       <TableRow key={withdrawal.id}>
                         <TableCell>

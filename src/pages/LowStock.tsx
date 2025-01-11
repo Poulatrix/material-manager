@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { StockItem } from '@/types/stock';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useToast } from "@/components/ui/use-toast";
 
 export default function LowStock() {
@@ -14,22 +14,27 @@ export default function LowStock() {
   useEffect(() => {
     const loadLowStockItems = async () => {
       try {
+        console.log('Loading low stock items...');
+        // Simplifions la requête pour éviter les problèmes d'index
         const q = query(
           collection(db, 'stock'),
-          where('archived', '==', false),
-          orderBy('lotNumber', 'asc')
+          where('archived', '==', false)
         );
         const querySnapshot = await getDocs(q);
         const stockItems: StockItem[] = [];
         
         querySnapshot.forEach((doc) => {
           const item = { ...doc.data(), id: doc.id } as StockItem;
-          if (item.remainingLength < 200) {
+          // Filtrons côté client pour les items avec remainingLength <= 200
+          if (item.remainingLength <= 200) {
             stockItems.push(item);
           }
         });
 
+        // Trions côté client
+        stockItems.sort((a, b) => a.lotNumber - b.lotNumber);
         setItems(stockItems);
+        console.log('Loaded low stock items:', stockItems);
       } catch (error) {
         console.error('Error loading low stock items:', error);
         toast({
@@ -46,7 +51,7 @@ export default function LowStock() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Stock Faible (&lt; 200mm)</h1>
+        <h1 className="text-3xl font-bold">Stock Faible (&lt;= 200mm)</h1>
         <Link to="/">
           <Button variant="outline">Retour au stock</Button>
         </Link>
