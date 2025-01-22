@@ -152,6 +152,9 @@ export default function Index() {
           <Link to="/low-stock">
             <Button variant="outline">Voir Stock Faible</Button>
           </Link>
+          <Link to="/references">
+            <Button variant="outline">Références Matière</Button>
+          </Link>
         </div>
       </div>
       
