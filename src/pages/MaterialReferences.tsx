@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { StockItem, MaterialWithdrawal } from '@/types/stock';
 
 interface MaterialReference {
   dimensions: string;
@@ -28,7 +27,7 @@ export default function MaterialReferences() {
       return querySnapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id
-      })) as MaterialWithdrawal[];
+      }));
     }
   });
 
@@ -40,7 +39,7 @@ export default function MaterialReferences() {
       return querySnapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id
-      })) as StockItem[];
+      }));
     }
   });
 
