@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { StockItem } from '@/types/stock';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 
 interface RemoveStockFormProps {
   items: StockItem[];
@@ -95,19 +95,6 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
           }
         } : {})
       });
-
-      // Si la longueur finale est 0, archiver automatiquement le lot
-      if (finalLength === 0 && lot.id) {
-        await updateDoc(doc(db, 'stock', lot.id), {
-          archived: true,
-          remainingLength: finalLength
-        });
-        
-        toast({
-          title: "Lot archivé",
-          description: `Le lot n°${lotNumber} a été automatiquement archivé car épuisé`,
-        });
-      }
 
       onRemove(Number(lotNumber), finalLength);
       toast({
