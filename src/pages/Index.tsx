@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AddStockForm } from '@/components/AddStockForm';
 import { RemoveStockForm } from '@/components/RemoveStockForm';
 import { StockTable } from '@/components/StockTable';
@@ -7,98 +7,53 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { StockItem } from '@/types/stock';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, doc, query, orderBy } from 'firebase/firestore';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function Index() {
-  const [items, setItems] = useState<StockItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<StockItem[]>([]);
-  const [nextLotNumber, setNextLotNumber] = useState(1);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const loadStockItems = async () => {
-      try {
-        console.log('Initializing Firebase connection...');
-        console.log('Database instance:', db);
-        
-        console.log('Creating query for stock collection...');
-        const q = query(collection(db, 'stock'), orderBy('lotNumber', 'asc'));
-        
-        console.log('Executing Firestore query...');
-        const querySnapshot = await getDocs(q);
-        
-        console.log('Query completed. Number of documents:', querySnapshot.size);
-        
-        const stockItems: StockItem[] = [];
-        let maxLotNumber = 0;
+  const { data: items = [], refetch } = useQuery({
+    queryKey: ['stock-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('stock')
+        .select('*')
+        .eq('archived', false)
+        .order('lot_number', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
 
-        querySnapshot.forEach((doc) => {
-          console.log('Processing document:', doc.id);
-          const item = { ...doc.data(), id: doc.id } as StockItem;
-          console.log('Document data:', item);
-          
-          if (!item.archived) {
-            stockItems.push(item);
-          }
-          maxLotNumber = Math.max(maxLotNumber, item.lotNumber);
-        });
-
-        console.log('Processed stock items:', stockItems);
-        console.log('Max lot number found:', maxLotNumber);
-        
-        setItems(stockItems);
-        setFilteredItems(stockItems);
-        setNextLotNumber(maxLotNumber + 1);
-        
-        console.log('State updated successfully');
-      } catch (error) {
-        console.error('Detailed error loading stock items:', error);
-        if (error instanceof Error) {
-          console.error('Error name:', error.name);
-          console.error('Error message:', error.message);
-          console.error('Error stack:', error.stack);
-        }
-        toast({
-          title: "Erreur de connexion",
-          description: "Impossible de se connecter à la base de données. Vérifiez votre connexion internet.",
-          variant: "destructive"
-        });
-      }
-    };
-
-    loadStockItems();
-  }, [toast]);
+  const nextLotNumber = items.length > 0 
+    ? Math.max(...items.map(item => item.lotNumber)) + 1 
+    : 1;
 
   const handleAddStock = async (newItem: StockItem) => {
     try {
-      console.log('Adding new stock item - details:', newItem);
-      
-      console.log('Creating new document in Firestore...');
-      const docRef = await addDoc(collection(db, 'stock'), newItem);
-      console.log('Document created with ID:', docRef.id);
-      
-      const itemWithId = { ...newItem, id: docRef.id };
-      
-      setItems(prev => [...prev, itemWithId]);
-      setFilteredItems(prev => [...prev, itemWithId]);
-      setNextLotNumber(prev => prev + 1);
+      const { data, error } = await supabase
+        .from('stock')
+        .insert([newItem])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      refetch();
       
       toast({
         title: "Stock ajouté",
         description: `Lot n°${newItem.lotNumber} ajouté avec succès`
       });
     } catch (error) {
-      console.error('Detailed error adding stock item:', error);
-      if (error instanceof Error) {
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      }
+      console.error('Error adding stock:', error);
       toast({
         title: "Erreur",
-        description: "Impossible d'ajouter l'article au stock. Vérifiez votre connexion.",
+        description: "Impossible d'ajouter l'article au stock.",
         variant: "destructive"
       });
     }
@@ -106,42 +61,24 @@ export default function Index() {
 
   const handleRemoveStock = async (lotNumber: number, newLength: number) => {
     try {
-      console.log('Updating stock item:', { lotNumber, newLength });
-      const itemToUpdate = items.find(item => item.lotNumber === lotNumber);
-      
-      if (!itemToUpdate || !itemToUpdate.id) {
-        throw new Error('Item not found');
-      }
+      const { error } = await supabase
+        .from('stock')
+        .update({ remaining_length: newLength })
+        .eq('lot_number', lotNumber);
 
-      console.log('Updating document in Firestore...');
-      await updateDoc(doc(db, 'stock', itemToUpdate.id), {
-        remainingLength: newLength
-      });
-      console.log('Document updated successfully');
+      if (error) throw error;
 
-      const updatedItems = items.map(item => 
-        item.lotNumber === lotNumber 
-          ? { ...item, remainingLength: newLength }
-          : item
-      );
-      
-      setItems(updatedItems);
-      setFilteredItems(updatedItems);
+      refetch();
       
       toast({
         title: "Stock mis à jour",
         description: `Lot n°${lotNumber} mis à jour avec succès`
       });
     } catch (error) {
-      console.error('Detailed error updating stock item:', error);
-      if (error instanceof Error) {
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      }
+      console.error('Error updating stock:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de mettre à jour le stock. Vérifiez votre connexion.",
+        description: "Impossible de mettre à jour le stock.",
         variant: "destructive"
       });
     }
@@ -188,12 +125,15 @@ export default function Index() {
           <Link to="/low-stock">
             <Button variant="outline">Voir Stock Faible</Button>
           </Link>
+          <Link to="/price-calculator">
+            <Button variant="outline">Calculateur de prix</Button>
+          </Link>
         </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <StockTable items={filteredItems} onSearch={handleSearch} />
+          <StockTable items={filteredItems.length > 0 ? filteredItems : items} onSearch={handleSearch} />
         </div>
         
         <div className="space-y-6">

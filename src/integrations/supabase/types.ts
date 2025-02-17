@@ -9,7 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      stock: {
+        Row: {
+          archived: boolean | null
+          created_at: string | null
+          diameter: number | null
+          height: number | null
+          id: string
+          length: number
+          lot_number: number
+          material: string
+          price: number | null
+          remaining_length: number
+          supplier: string
+          type: string
+          width: number | null
+        }
+        Insert: {
+          archived?: boolean | null
+          created_at?: string | null
+          diameter?: number | null
+          height?: number | null
+          id?: string
+          length: number
+          lot_number: number
+          material: string
+          price?: number | null
+          remaining_length: number
+          supplier: string
+          type: string
+          width?: number | null
+        }
+        Update: {
+          archived?: boolean | null
+          created_at?: string | null
+          diameter?: number | null
+          height?: number | null
+          id?: string
+          length?: number
+          lot_number?: number
+          material?: string
+          price?: number | null
+          remaining_length?: number
+          supplier?: string
+          type?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,7 @@ import Index from "./pages/Index";
 import LowStock from "./pages/LowStock";
 import Withdrawals from "./pages/Withdrawals";
 import Archives from "./pages/Archives";
+import PriceCalculator from "./pages/PriceCalculator";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +23,7 @@ const App = () => (
           <Route path="/low-stock" element={<LowStock />} />
           <Route path="/withdrawals" element={<Withdrawals />} />
           <Route path="/archives" element={<Archives />} />
+          <Route path="/price-calculator" element={<PriceCalculator />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
