@@ -57,6 +57,45 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawals: {
+        Row: {
+          date: string | null
+          dimensions: string
+          id: string
+          lot_number: number
+          material: string
+          piece_info: Json | null
+          quantity: number
+          reference: string
+          supplier: string
+          value: number
+        }
+        Insert: {
+          date?: string | null
+          dimensions: string
+          id?: string
+          lot_number: number
+          material: string
+          piece_info?: Json | null
+          quantity: number
+          reference: string
+          supplier: string
+          value: number
+        }
+        Update: {
+          date?: string | null
+          dimensions?: string
+          id?: string
+          lot_number?: number
+          material?: string
+          piece_info?: Json | null
+          quantity?: number
+          reference?: string
+          supplier?: string
+          value?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

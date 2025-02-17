@@ -1,11 +1,11 @@
+
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { StockItem } from '@/types/stock';
 import { useToast } from "@/components/ui/use-toast";
-import { db } from '@/lib/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { supabase } from '@/integrations/supabase/client';
 
 interface StockTableProps {
   items: StockItem[];
@@ -30,13 +30,16 @@ export function StockTable({ items, onSearch }: StockTableProps) {
     if (!item.id) return;
 
     try {
-      await updateDoc(doc(db, 'stock', item.id), {
-        archived: true
-      });
+      const { error } = await supabase
+        .from('stock')
+        .update({ archived: true })
+        .eq('id', item.id);
+
+      if (error) throw error;
 
       toast({
         title: "Lot archivé",
-        description: `Le lot n°${item.lotNumber} a été archivé avec succès`
+        description: `Le lot n°${item.lot_number} a été archivé avec succès`
       });
     } catch (error) {
       toast({
@@ -86,8 +89,8 @@ export function StockTable({ items, onSearch }: StockTableProps) {
           </TableHeader>
           <TableBody>
             {items.filter(item => !item.archived).map((item) => (
-              <TableRow key={item.lotNumber}>
-                <TableCell>{item.lotNumber}</TableCell>
+              <TableRow key={item.lot_number}>
+                <TableCell>{item.lot_number}</TableCell>
                 <TableCell>{item.type === 'rectangular' ? 'Rectangulaire' : 'Circulaire'}</TableCell>
                 <TableCell>
                   {item.type === 'rectangular' 
@@ -96,7 +99,7 @@ export function StockTable({ items, onSearch }: StockTableProps) {
                   }
                 </TableCell>
                 <TableCell>{item.length} mm</TableCell>
-                <TableCell>{item.remainingLength} mm</TableCell>
+                <TableCell>{item.remaining_length} mm</TableCell>
                 <TableCell>{item.material}</TableCell>
                 <TableCell>{item.supplier}</TableCell>
                 <TableCell>

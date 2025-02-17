@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,6 @@ interface AddStockFormProps {
 }
 
 export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
-  const { toast } = useToast();
   const [type, setType] = useState<'rectangular' | 'circular'>('rectangular');
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
@@ -21,11 +21,14 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
   const [material, setMaterial] = useState('');
   const [supplier, setSupplier] = useState('');
   const [price, setPrice] = useState('');
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!material || !length || !supplier || (type === 'rectangular' && (!width || !height)) || (type === 'circular' && !diameter)) {
+    if (!material || !length || !supplier || 
+      (type === 'rectangular' && (!width || !height)) || 
+      (type === 'circular' && !diameter)) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs requis",
@@ -35,12 +38,12 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
     }
 
     const newItem: StockItem = {
-      lotNumber: nextLotNumber,
+      lot_number: nextLotNumber,
       type,
       length: Number(length),
       material,
       supplier,
-      remainingLength: Number(length),
+      remaining_length: Number(length),
       price: price ? Number(price) : undefined,
       ...(type === 'rectangular' 
         ? { width: Number(width), height: Number(height) }
@@ -62,7 +65,11 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-6 bg-white rounded-lg shadow">
-      <RadioGroup value={type} onValueChange={(value: 'rectangular' | 'circular') => setType(value)} className="flex space-x-4">
+      <RadioGroup 
+        value={type} 
+        onValueChange={(value: 'rectangular' | 'circular') => setType(value)}
+        className="flex space-x-4"
+      >
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="rectangular" id="rectangular" />
           <Label htmlFor="rectangular">Rectangulaire</Label>
