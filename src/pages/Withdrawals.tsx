@@ -70,15 +70,15 @@ export default function Withdrawals() {
                     minute: '2-digit'
                   })}
                 </TableCell>
-                <TableCell>{withdrawal.lotNumber}</TableCell>
+                <TableCell>{withdrawal.lot_number}</TableCell>
                 <TableCell>{withdrawal.reference}</TableCell>
                 <TableCell>{withdrawal.quantity} mm</TableCell>
                 <TableCell>{withdrawal.material}</TableCell>
                 <TableCell>{withdrawal.dimensions}</TableCell>
                 <TableCell>{withdrawal.supplier}</TableCell>
                 <TableCell>
-                  {withdrawal.pieceInfo
-                    ? `${withdrawal.pieceInfo.name} (${withdrawal.pieceInfo.quantity} pcs)`
+                  {withdrawal.piece_info
+                    ? `${withdrawal.piece_info.name} (${withdrawal.piece_info.quantity} pcs)`
                     : '-'}
                 </TableCell>
                 <TableCell>

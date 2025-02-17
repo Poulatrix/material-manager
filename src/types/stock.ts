@@ -16,7 +16,7 @@ export interface StockItem {
 
 export interface MaterialWithdrawal {
   id: string;
-  lotNumber: number;
+  lot_number: number;
   quantity: number;
   reference: string;
   date: Date;
@@ -24,7 +24,7 @@ export interface MaterialWithdrawal {
   dimensions: string;
   supplier: string;
   value: number;
-  pieceInfo?: {
+  piece_info?: {
     name: string;
     quantity: number;
   };

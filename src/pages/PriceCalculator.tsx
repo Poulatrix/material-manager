@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -47,17 +48,13 @@ export default function PriceCalculator() {
   const prices = calculatePrice();
 
   return (
-    
-    <div className="container mx-auto py-4 md:py-8 px-2 md:px-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold">Stock Faible (&lt;= 200mm)</h1>
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Calculateur de Prix</h1>
         <Link to="/">
           <Button variant="outline">Retour au stock</Button>
         </Link>
       </div>
-      
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Calculateur de Prix</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="p-6 space-y-4">

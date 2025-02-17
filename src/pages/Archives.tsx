@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -119,7 +118,7 @@ export default function Archives() {
                 </TableHeader>
                 <TableBody>
                   {withdrawals
-                    ?.filter(w => w.lotNumber === lot.lot_number)
+                    ?.filter(w => w.lot_number === lot.lot_number)
                     .sort((a, b) => b.date.getTime() - a.date.getTime())
                     .map(withdrawal => (
                       <TableRow key={withdrawal.id}>
@@ -135,8 +134,8 @@ export default function Archives() {
                         <TableCell>{withdrawal.reference}</TableCell>
                         <TableCell>{withdrawal.quantity} mm</TableCell>
                         <TableCell>
-                          {withdrawal.pieceInfo
-                            ? `${withdrawal.pieceInfo.name} (${withdrawal.pieceInfo.quantity} pcs)`
+                          {withdrawal.piece_info
+                            ? `${withdrawal.piece_info.name} (${withdrawal.piece_info.quantity} pcs)`
                             : '-'}
                         </TableCell>
                         <TableCell>
