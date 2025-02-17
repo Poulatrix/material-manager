@@ -1,11 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { StockItem } from '@/types/stock';
-import { db } from '@/lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RemoveStockFormProps {
   items: StockItem[];
@@ -24,7 +24,7 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const lot = items.find(item => item.lotNumber === Number(lotNumber));
+    const lot = items.find(item => item.lot_number === Number(lotNumber));
     if (!lot) {
       toast({
         title: "Erreur",
@@ -55,7 +55,7 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
 
     const finalLength = removeType === 'remaining' 
       ? numberNewLength 
-      : lot.remainingLength - numberNewLength;
+      : lot.remaining_length - numberNewLength;
 
     if (finalLength < 0) {
       toast({
@@ -67,7 +67,7 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
     }
 
     const quantityRemoved = removeType === 'remaining' 
-      ? lot.remainingLength - numberNewLength
+      ? lot.remaining_length - numberNewLength
       : numberNewLength;
 
     // Calculate value of removed material
@@ -76,25 +76,29 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
       : 0;
 
     try {
-      // Save withdrawal to Firestore
-      await addDoc(collection(db, 'withdrawals'), {
-        lotNumber: Number(lotNumber),
-        quantity: quantityRemoved,
-        reference,
-        date: new Date(),
-        material: lot.material,
-        dimensions: lot.type === 'rectangular' 
-          ? `${lot.width}x${lot.height} mm`
-          : `Ø${lot.diameter} mm`,
-        supplier: lot.supplier,
-        value: value,
-        ...(pieceName && pieceQuantity ? {
-          pieceInfo: {
-            name: pieceName,
-            quantity: Number(pieceQuantity)
-          }
-        } : {})
-      });
+      // Save withdrawal to Supabase
+      const { error: withdrawalError } = await supabase
+        .from('withdrawals')
+        .insert([{
+          lot_number: Number(lotNumber),
+          quantity: quantityRemoved,
+          reference,
+          date: new Date(),
+          material: lot.material,
+          dimensions: lot.type === 'rectangular' 
+            ? `${lot.width}x${lot.height} mm`
+            : `Ø${lot.diameter} mm`,
+          supplier: lot.supplier,
+          value: value,
+          ...(pieceName && pieceQuantity ? {
+            piece_info: {
+              name: pieceName,
+              quantity: Number(pieceQuantity)
+            }
+          } : {})
+        }]);
+
+      if (withdrawalError) throw withdrawalError;
 
       onRemove(Number(lotNumber), finalLength);
       toast({

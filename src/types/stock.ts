@@ -1,13 +1,14 @@
+
 export interface StockItem {
   id?: string;
-  lotNumber: number;
+  lot_number: number;
   type: 'rectangular' | 'circular';
   width?: number;
   height?: number;
   diameter?: number;
   length: number;
   material: string;
-  remainingLength: number;
+  remaining_length: number;
   supplier: string;
   price?: number;
   archived?: boolean;
