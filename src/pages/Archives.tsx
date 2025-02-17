@@ -1,12 +1,12 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { StockItem, MaterialWithdrawal } from '@/types/stock';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Archives() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,37 +14,29 @@ export default function Archives() {
   const { data: archivedLots, isLoading: isLoadingLots } = useQuery({
     queryKey: ['archivedLots'],
     queryFn: async () => {
-      console.log('Loading archived lots...');
-      const q = query(
-        collection(db, 'stock'),
-        where('archived', '==', true)
-      );
-      const querySnapshot = await getDocs(q);
-      const lots = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as StockItem[];
+      const { data, error } = await supabase
+        .from('stock')
+        .select('*')
+        .eq('archived', true)
+        .order('lot_number', { ascending: true });
       
-      // Tri côté client
-      lots.sort((a, b) => a.lotNumber - b.lotNumber);
-      console.log('Loaded archived lots:', lots);
-      return lots;
+      if (error) throw error;
+      return data as StockItem[];
     }
   });
 
   const { data: withdrawals, isLoading: isLoadingWithdrawals } = useQuery({
     queryKey: ['allWithdrawals'],
     queryFn: async () => {
-      console.log('Loading withdrawals...');
-      const q = query(collection(db, 'withdrawals'));
-      const querySnapshot = await getDocs(q);
-      const withdrawalData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate()
+      const { data, error } = await supabase
+        .from('withdrawals')
+        .select('*');
+      
+      if (error) throw error;
+      return data.map(w => ({
+        ...w,
+        date: new Date(w.date)
       })) as MaterialWithdrawal[];
-      console.log('Loaded withdrawals:', withdrawalData);
-      return withdrawalData;
     }
   });
 
@@ -52,7 +44,7 @@ export default function Archives() {
     if (!searchTerm) return true;
     const searchLower = searchTerm.toLowerCase();
     return (
-      lot.lotNumber.toString().includes(searchLower) ||
+      lot.lot_number.toString().includes(searchLower) ||
       lot.material.toLowerCase().includes(searchLower) ||
       lot.supplier.toLowerCase().includes(searchLower) ||
       (lot.type === 'rectangular' && 
@@ -88,7 +80,7 @@ export default function Archives() {
         {filteredLots?.map(lot => (
           <div key={lot.id} className="border rounded-lg p-6 bg-white shadow">
             <h2 className="text-xl font-semibold mb-4">
-              Lot n°{lot.lotNumber} - {lot.material}
+              Lot n°{lot.lot_number} - {lot.material}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div>
@@ -105,7 +97,7 @@ export default function Archives() {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Longueur restante</p>
-                <p>{lot.remainingLength} mm</p>
+                <p>{lot.remaining_length} mm</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Fournisseur</p>
@@ -127,7 +119,7 @@ export default function Archives() {
                 </TableHeader>
                 <TableBody>
                   {withdrawals
-                    ?.filter(w => w.lotNumber === lot.lotNumber)
+                    ?.filter(w => w.lotNumber === lot.lot_number)
                     .sort((a, b) => b.date.getTime() - a.date.getTime())
                     .map(withdrawal => (
                       <TableRow key={withdrawal.id}>

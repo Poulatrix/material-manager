@@ -79,11 +79,11 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
       // Save withdrawal to Supabase
       const { error: withdrawalError } = await supabase
         .from('withdrawals')
-        .insert([{
+        .insert({
           lot_number: Number(lotNumber),
           quantity: quantityRemoved,
           reference,
-          date: new Date(),
+          date: new Date().toISOString(),
           material: lot.material,
           dimensions: lot.type === 'rectangular' 
             ? `${lot.width}x${lot.height} mm`
@@ -96,7 +96,7 @@ export function RemoveStockForm({ items, onRemove }: RemoveStockFormProps) {
               quantity: Number(pieceQuantity)
             }
           } : {})
-        }]);
+        });
 
       if (withdrawalError) throw withdrawalError;
 

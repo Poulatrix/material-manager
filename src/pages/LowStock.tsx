@@ -1,51 +1,44 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { StockItem } from '@/types/stock';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function LowStock() {
-  const [items, setItems] = useState<StockItem[]>([]);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    const loadLowStockItems = async () => {
-      try {
-        console.log('Loading low stock items...');
-        const q = query(
-          collection(db, 'stock'),
-          where('archived', '==', false)
-        );
-        const querySnapshot = await getDocs(q);
-        const stockItems: StockItem[] = [];
-        
-        querySnapshot.forEach((doc) => {
-          const item = { ...doc.data(), id: doc.id } as StockItem;
-          if (item.remainingLength <= 200) {
-            stockItems.push(item);
-          }
-        });
-
-        stockItems.sort((a, b) => a.lotNumber - b.lotNumber);
-        console.log('Found low stock items:', stockItems);
-        setItems(stockItems);
-      } catch (error) {
-        console.error('Error loading low stock items:', error);
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: ['lowStockItems'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('stock')
+        .select('*')
+        .eq('archived', false)
+        .lte('remaining_length', 200)
+        .order('lot_number', { ascending: true });
+      
+      if (error) {
         toast({
           title: "Erreur",
           description: "Impossible de charger les données du stock faible",
           variant: "destructive"
         });
+        throw error;
       }
-    };
 
-    loadLowStockItems();
-  }, [toast]);
+      return data as StockItem[];
+    }
+  });
+
+  if (isLoading) {
+    return <div className="container mx-auto py-8 px-4">Chargement...</div>;
+  }
 
   return (
     <div className="container mx-auto py-4 md:py-8 px-2 md:px-4">
@@ -71,7 +64,7 @@ export default function LowStock() {
           <TableBody>
             {items.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{item.lotNumber}</TableCell>
+                <TableCell>{item.lot_number}</TableCell>
                 <TableCell className={isMobile ? "hidden" : ""}>
                   {item.type === 'rectangular' ? 'Rectangulaire' : 'Circulaire'}
                 </TableCell>
@@ -81,7 +74,7 @@ export default function LowStock() {
                     : `Ø${item.diameter} mm`
                   }
                 </TableCell>
-                <TableCell>{item.remainingLength} mm</TableCell>
+                <TableCell>{item.remaining_length} mm</TableCell>
                 <TableCell className={isMobile ? "hidden" : ""}>{item.material}</TableCell>
                 <TableCell className={isMobile ? "hidden" : ""}>{item.supplier}</TableCell>
               </TableRow>

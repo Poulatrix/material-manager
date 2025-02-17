@@ -1,22 +1,26 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MaterialWithdrawal } from '@/types/stock';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Withdrawals() {
   const { data: withdrawals, isLoading } = useQuery({
     queryKey: ['withdrawals'],
     queryFn: async () => {
-      const q = query(collection(db, 'withdrawals'), orderBy('date', 'desc'));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate()
+      const { data, error } = await supabase
+        .from('withdrawals')
+        .select('*')
+        .order('date', { ascending: false });
+      
+      if (error) throw error;
+      
+      return data.map(w => ({
+        ...w,
+        date: new Date(w.date)
       })) as MaterialWithdrawal[];
     }
   });

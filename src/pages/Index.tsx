@@ -30,7 +30,7 @@ export default function Index() {
   });
 
   const nextLotNumber = items.length > 0 
-    ? Math.max(...items.map(item => item.lotNumber)) + 1 
+    ? Math.max(...items.map(item => item.lot_number)) + 1 
     : 1;
 
   const handleAddStock = async (newItem: StockItem) => {
@@ -47,7 +47,7 @@ export default function Index() {
       
       toast({
         title: "Stock ajouté",
-        description: `Lot n°${newItem.lotNumber} ajouté avec succès`
+        description: `Lot n°${newItem.lot_number} ajouté avec succès`
       });
     } catch (error) {
       console.error('Error adding stock:', error);
