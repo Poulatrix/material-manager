@@ -43,8 +43,11 @@ export default function PriceCalculator() {
     if (!diameter) return false;
     return item.type === 'circular' && item.diameter === parseFloat(diameter);
   });
+      
+  const prices = calculatePrice();
 
- return (
+  return (
+    
     <div className="container mx-auto py-4 md:py-8 px-2 md:px-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 gap-4">
         <h1 className="text-2xl md:text-3xl font-bold">Stock Faible (&lt;= 200mm)</h1>
@@ -52,11 +55,7 @@ export default function PriceCalculator() {
           <Button variant="outline">Retour au stock</Button>
         </Link>
       </div>
-   );
       
-  const prices = calculatePrice();
-
-  return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8">Calculateur de Prix</h1>
       
