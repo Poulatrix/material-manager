@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AddStockForm } from '@/components/AddStockForm';
 import { RemoveStockForm } from '@/components/RemoveStockForm';
@@ -19,30 +20,49 @@ export default function Index() {
   useEffect(() => {
     const loadStockItems = async () => {
       try {
-        console.log('Loading stock items from Firestore...');
+        console.log('Initializing Firebase connection...');
+        console.log('Database instance:', db);
+        
+        console.log('Creating query for stock collection...');
         const q = query(collection(db, 'stock'), orderBy('lotNumber', 'asc'));
+        
+        console.log('Executing Firestore query...');
         const querySnapshot = await getDocs(q);
+        
+        console.log('Query completed. Number of documents:', querySnapshot.size);
+        
         const stockItems: StockItem[] = [];
         let maxLotNumber = 0;
 
         querySnapshot.forEach((doc) => {
+          console.log('Processing document:', doc.id);
           const item = { ...doc.data(), id: doc.id } as StockItem;
+          console.log('Document data:', item);
+          
           if (!item.archived) {
             stockItems.push(item);
           }
-          // Prendre en compte tous les lots, même archivés, pour le numéro suivant
           maxLotNumber = Math.max(maxLotNumber, item.lotNumber);
         });
 
-        console.log('Loaded stock items:', stockItems);
+        console.log('Processed stock items:', stockItems);
+        console.log('Max lot number found:', maxLotNumber);
+        
         setItems(stockItems);
         setFilteredItems(stockItems);
         setNextLotNumber(maxLotNumber + 1);
+        
+        console.log('State updated successfully');
       } catch (error) {
-        console.error('Error loading stock items:', error);
+        console.error('Detailed error loading stock items:', error);
+        if (error instanceof Error) {
+          console.error('Error name:', error.name);
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+        }
         toast({
-          title: "Erreur",
-          description: "Impossible de charger les données du stock",
+          title: "Erreur de connexion",
+          description: "Impossible de se connecter à la base de données. Vérifiez votre connexion internet.",
           variant: "destructive"
         });
       }
@@ -53,8 +73,12 @@ export default function Index() {
 
   const handleAddStock = async (newItem: StockItem) => {
     try {
-      console.log('Adding new stock item:', newItem);
+      console.log('Adding new stock item - details:', newItem);
+      
+      console.log('Creating new document in Firestore...');
       const docRef = await addDoc(collection(db, 'stock'), newItem);
+      console.log('Document created with ID:', docRef.id);
+      
       const itemWithId = { ...newItem, id: docRef.id };
       
       setItems(prev => [...prev, itemWithId]);
@@ -66,10 +90,15 @@ export default function Index() {
         description: `Lot n°${newItem.lotNumber} ajouté avec succès`
       });
     } catch (error) {
-      console.error('Error adding stock item:', error);
+      console.error('Detailed error adding stock item:', error);
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
       toast({
         title: "Erreur",
-        description: "Impossible d'ajouter l'article au stock",
+        description: "Impossible d'ajouter l'article au stock. Vérifiez votre connexion.",
         variant: "destructive"
       });
     }
@@ -84,9 +113,11 @@ export default function Index() {
         throw new Error('Item not found');
       }
 
+      console.log('Updating document in Firestore...');
       await updateDoc(doc(db, 'stock', itemToUpdate.id), {
         remainingLength: newLength
       });
+      console.log('Document updated successfully');
 
       const updatedItems = items.map(item => 
         item.lotNumber === lotNumber 
@@ -102,10 +133,15 @@ export default function Index() {
         description: `Lot n°${lotNumber} mis à jour avec succès`
       });
     } catch (error) {
-      console.error('Error updating stock item:', error);
+      console.error('Detailed error updating stock item:', error);
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
       toast({
         title: "Erreur",
-        description: "Impossible de mettre à jour le stock",
+        description: "Impossible de mettre à jour le stock. Vérifiez votre connexion.",
         variant: "destructive"
       });
     }
