@@ -25,7 +25,14 @@ export default function Index() {
         .order('lot_number', { ascending: true });
       
       if (error) throw error;
-      return data;
+
+      // Transform the data to ensure type safety
+      return data.map(item => ({
+        ...item,
+        type: item.type === 'rectangular' || item.type === 'circular' 
+          ? item.type as 'rectangular' | 'circular'
+          : 'rectangular' // Default to rectangular if invalid type
+      })) as StockItem[];
     }
   });
 
