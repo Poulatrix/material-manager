@@ -8,11 +8,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { StockItem } from '@/types/stock';
 
 interface AddStockFormProps {
-  onAdd: (item: StockItem) => void;
+  onAdd: (item: Omit<StockItem, 'remaining_length' | 'lot_number' | 'archived'>) => void;
   nextLotNumber: number;
+  hideLength?: boolean;
 }
 
-export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
+export function AddStockForm({ onAdd, nextLotNumber, hideLength = false }: AddStockFormProps) {
   const [type, setType] = useState<'rectangular' | 'circular'>('rectangular');
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
@@ -26,7 +27,7 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!material || !length || !supplier || 
+    if (!material || (!hideLength && !length) || !supplier || 
       (type === 'rectangular' && (!width || !height)) || 
       (type === 'circular' && !diameter)) {
       toast({
@@ -37,13 +38,11 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
       return;
     }
 
-    const newItem: StockItem = {
-      lot_number: nextLotNumber,
+    const newItem = {
       type,
       length: Number(length),
       material,
       supplier,
-      remaining_length: Number(length),
       price: price ? Number(price) : undefined,
       ...(type === 'rectangular' 
         ? { width: Number(width), height: Number(height) }
@@ -116,16 +115,18 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="length">Longueur (mm)</Label>
-        <Input
-          id="length"
-          type="number"
-          value={length}
-          onChange={(e) => setLength(e.target.value)}
-          placeholder="Longueur"
-        />
-      </div>
+      {!hideLength && (
+        <div className="space-y-2">
+          <Label htmlFor="length">Longueur (mm)</Label>
+          <Input
+            id="length"
+            type="number"
+            value={length}
+            onChange={(e) => setLength(e.target.value)}
+            placeholder="Longueur"
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="material">Matière</Label>
@@ -160,7 +161,7 @@ export function AddStockForm({ onAdd, nextLotNumber }: AddStockFormProps) {
       </div>
 
       <Button type="submit" className="w-full">
-        Ajouter au stock
+        Ajouter
       </Button>
     </form>
   );

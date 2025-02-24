@@ -135,6 +135,9 @@ export default function Index() {
           <Link to="/price-calculator">
             <Button variant="outline">Calculateur de prix</Button>
           </Link>
+          <Link to="/future-purchases">
+            <Button variant="outline">Achats prévus</Button>
+          </Link>
         </div>
       </div>
       

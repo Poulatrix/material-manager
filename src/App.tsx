@@ -9,6 +9,7 @@ import LowStock from "./pages/LowStock";
 import Withdrawals from "./pages/Withdrawals";
 import Archives from "./pages/Archives";
 import PriceCalculator from "./pages/PriceCalculator";
+import FuturePurchases from "./pages/FuturePurchases";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/withdrawals" element={<Withdrawals />} />
           <Route path="/archives" element={<Archives />} />
           <Route path="/price-calculator" element={<PriceCalculator />} />
+          <Route path="/future-purchases" element={<FuturePurchases />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
